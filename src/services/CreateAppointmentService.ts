@@ -1,5 +1,7 @@
 import Appointment from "../models/Appointment";
-import { getCustomRepository} from 'typeorm';
+import { getCustomRepository } from 'typeorm';
+
+import AppError from '../errors/AppError';
 
 import appointmentsRouter from "../routes/appointments.routes";
 import AppointmentsRepository from '../repositories/AppointmentsRepository'
@@ -15,7 +17,7 @@ interface Request {
  */
 
 class CreateAppointmentService {
-  public async execute({  provider_id, date  }: Request): Promise<Appointment> {
+  public async execute({ provider_id, date }: Request): Promise<Appointment> {
     const appointmentsRepository = getCustomRepository(AppointmentsRepository);
 
     const appointmentDate = startOfHour(date);
@@ -24,8 +26,8 @@ class CreateAppointmentService {
       appointmentDate,
     );
 
-    if(findAppointmentsInSameDate){
-      throw Error('This appointment is already booked');
+    if (findAppointmentsInSameDate) {
+      throw new AppError('This appointment is already booked');
     }
 
     const appointment = appointmentsRepository.create({
